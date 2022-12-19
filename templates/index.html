@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌏首页-数据展示</title>
+    <link href="/static/layui/css/layui.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/index.css" rel="stylesheet">
+    <script src="/static/js/echarts.js"></script>
+</head>
+<body>
+    <div id="header">
+        <h1>📊 全 球 碳 预 算 数 据 分 析 </h1>
+        <div id="nav" class="flex">
+            <button id="totalChart" class="ChartButton layui-btn layui-btn-radius">📈 全球碳排放历史统计图</button>
+            <button id="sumChart" class="layui-btn ChartButton layui-btn-radius">全球每十年碳预算总和统计图</button>
+            <button id="detailsChart" class="ChartButton layui-btn layui-btn-radius">📊 全球碳预算详细数据</button>
+            <button id="fossilChart" class="layui-btn ChartButton layui-btn-radius">⛽ 化石排放占比图</button>
+            <button id="treeChart" class="layui-btn ChartButton layui-btn-radius">🔗 数据库关系树图</button>
+            <button id="about" class="layui-btn ChartButton layui-btn-radius">🇨🇳 关于我们</button>
+        </div>
+    </div>
+
+
+    <div id="mybody">
+        <div id="ABOUT" class="flex-detail">
+            <div class="aboutme">
+                <img src="/static/1.jpg" alt="曹轲菲" class="aboutme">
+            </div>
+            <div class="aboutme">
+                <img src="/static/2.jpg" alt="张涵" class="aboutme">
+            </div>
+            <div class="aboutme">
+                <img src="/static/3.jpg" alt="冯大云" class="aboutme">
+            </div>
+            <div class="aboutme">
+                <img src="/static/4.jpg" alt="孙培豪" class="aboutme">
+            </div>
+            <div style="width: 5px;"></div>
+        </div>
+        <div id="SUM" class="chartBody"></div>
+        <div id="TOTAL" class="chartBody"></div>
+        <div id="FOSSIL" class="chartBody"></div>
+        <div id="TREE" class="chartBody"></div>
+        <div id="DETAIL" class="chartsBody">
+            <div class="flex-detail">
+                <div id="FDTAIL" class="detailBody"></div>
+                <div id="LUDTAIL" class="detailBody"></div>
+                <div id="AGDTAIL" class="detailBody"></div>
+                <div id="OSDTAIL" class="detailBody"></div>
+                <div id="LSDTAIL" class="detailBody"></div>
+                <div id="CSDTAIL" class="detailBody"></div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+       <p style="font-size: 10px; text-align: center;">©️ 曹轲菲、张涵、冯大云、孙培豪</p> 
+    </div>
+   
+
+
+    <script src="/static/layui/layui.js"></script>
+    <script>
+        layui.use(['layer','carousel','element'], function(){
+        var layer = layui.layer;
+        var element = layui.element;
+        var $ = layui.jquery;
+        var sumChart = echarts.init(document.getElementById('SUM'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var totalChart = echarts.init(document.getElementById('TOTAL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var fossilEChart = echarts.init(document.getElementById('FOSSIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var databaseTreeChart = echarts.init(document.getElementById('TREE'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var fmaxChart = echarts.init(document.getElementById('FDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var lumaxChart = echarts.init(document.getElementById('LUDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var agmaxChart = echarts.init(document.getElementById('AGDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var osmaxChart = echarts.init(document.getElementById('OSDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var lsmaxChart = echarts.init(document.getElementById('LSDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+        var csmaxChart = echarts.init(document.getElementById('CSDTAIL'), null, {
+            renderer: 'canvas',
+            useDirtyRect: false
+        });
+       
+        var app = {};
+        var sumChartOpt = {
+            darkMode: "auto",
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+                },
+                feature: {
+                saveAsImage: {}
+                }  
+            },
+            legend: {},
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value'
+            },
+            yAxis: {
+                type: 'category',
+                data: ['60年代', '70年代', '80年代', '90年代', '00年代', '10年代']
+            },
+            series: []
+        };
+        var totalChartOpt = {
+            darkMode: "auto",
+            // title: {text: '碳排放历史统计'},
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            legend: {
+                data: ['化石燃料排放', '陆地变化排放', '大气活动排放', '海洋下沉排放', '陆地下沉排放','差值']
+            },
+            toolbox: {
+                feature: {
+                saveAsImage: {}
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                type: 'category',
+                boundaryGap: false,
+                data: []
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: []
+        };
+        var fossilEChartOpt = {
+            darkMode: "auto",
+            legend: {
+                data: ['Coal', 'Oil', 'Gas', 'Cement Emission', 'Flaring','Other']
+            },
+            tooltip: {
+                trigger: 'axis',
+                showContent: false,
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: { type: 'category' },
+            yAxis: { gridIndex: 0 },
+            grid: { top: '55%' },
+            series: [
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'line',
+                smooth: true,
+                seriesLayoutBy: 'row',
+                emphasis: { focus: 'series' }
+            },
+            {
+                type: 'pie',
+                id: 'pie',
+                radius: '30%',
+                center: ['50%', '25%'],
+                emphasis: {
+                    focus: 'self'
+                },
+                label: {
+                    formatter: '{b}: {@2020} ({d}%)'
+                },
+                encode: {
+                    itemName: 'fossileEYear',
+                    value: '2020',
+                    tooltip: '2020'
+                }
+            }
+            ]
+        }
+        var databaseTreeChartOpt = {
+            darkMode: "auto",
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove',
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            series: [
+                {
+                type: 'tree',
+                data: [],
+                top: '1%',
+                left: '7%',
+                bottom: '1%',
+                right: '20%',
+                symbolSize: 25,
+                label: {
+                    position: 'left',
+                    verticalAlign: 'middle',
+                    align: 'right',
+                    fontSize: 9
+                },
+                leaves: {
+                    label: {
+                    position: 'right',
+                    verticalAlign: 'middle',
+                    align: 'left'
+                    }
+                },
+                emphasis: {
+                    focus: 'descendant'
+                },
+                expandAndCollapse: true,
+                animationDuration: 550,
+                animationDurationUpdate: 750
+                }
+            ]
+        }
+        $.ajax({
+			url: '/api/getSum',
+				type: "get",
+				async: true,//异步
+				complete: function (XHR, TS) {
+					if (XHR.status != 200) {
+						layer.alert("系统繁忙，稍后重试~");
+					}
+				},
+				success: function (result) {
+                 console.log(result.data)
+					if(result.code==0){
+						sumChart.setOption({
+							series: [
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    minInterval: 1,
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.fname,
+								    data: result.data.fdata
+							    },
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.luname,
+								    data: result.data.ludata
+							    },
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.agname,
+								    data: result.data.agdata
+							    },
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.osname,
+								    data: result.data.osdata
+							    },
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.lsname,
+								    data: result.data.lsdata
+							    },
+                                {
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                    show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.biname,
+								    data: result.data.bidata
+							    },
+                        ]
+						});
+                        totalChart.setOption({
+                            xAxis: [
+                                {
+                                    type: 'category',
+                                    boundaryGap: false,
+                                    data: result.data.yeartotal,
+                                }
+                            ],
+                            series:[
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.fname,
+								    data: result.data.ftotal
+                                },
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.luname,
+								    data: result.data.lutotal
+                                },
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.agname,
+								    data: result.data.agtotal
+                                },
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.osname,
+								    data: result.data.ostotal
+                                },
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.lsname,
+								    data: result.data.lstotal
+                                },
+                                {
+                                    type: 'line',
+                                    stack: 'Total',
+                                    areaStyle: {},
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    name: result.data.biname,
+								    data: result.data.bitotal
+                                },
+                            ]
+                        });
+                        fossilEChart.setOption({
+                            dataset: {
+                                source: result.data.fdatasource,
+                                },
+                        });  
+                        result.data.treedata.children.forEach(function (datum, index) {
+                            index % 2 === 1 && (datum.collapsed = true);
+                        });
+                        databaseTreeChart.setOption({
+                            series:[{data:[result.data.treedata]}]
+                        });  
+                        fmaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年化石燃料排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.fmaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.fmaxdata
+                                }
+                            ]
+                        });         
+                        lumaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年陆地改变排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.lumaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.lumaxdata
+                                }
+                            ]
+                        });
+                        agmaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年大气变化排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.agmaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.agmaxdata
+                                }
+                            ]
+                        });
+                        osmaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年海洋沉降排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.osmaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.osmaxdata
+                                }
+                            ]
+                        });
+                        lsmaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年陆地沉降排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.lsmaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.lsmaxdata
+                                }
+                            ]
+                        });
+                        csmaxChart.setOption({
+                            title: [
+                                {
+                                    text: '每十年混凝土降排放最大值'
+                                }
+                            ],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                type: 'shadow'
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis: [
+                                {
+                                type: 'category',
+                                data: result.data.csmaxyear,
+                                axisTick: {
+                                    alignWithLabel: true
+                                }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                type: 'value'
+                                }
+                            ],
+                            series: [
+                                {
+                                name: '排放量',
+                                type: 'bar',
+                                barWidth: '60%',
+                                data: result.data.csmaxdata
+                                }
+                            ]
+                        });
+                    }else{
+						layer.msg(result.msg);
+					}
+				},
+				error: function () {
+					layer.alert("error");
+				}
+			});
+
+            fossilEChart.on('updateAxisPointer', function (event) {
+                const xAxisInfo = event.axesInfo[0];
+                if (xAxisInfo) {
+                const dimension = xAxisInfo.value + 1;
+                fossilEChart.setOption({
+                    series: {
+                    id: 'pie',
+                    label: {
+                        formatter: '{b}: {@[' + dimension + ']} ({d}%)'
+                    },
+                    encode: {
+                        value: dimension,
+                        tooltip: dimension
+                    }
+                    }
+                });
+                }
+            });
+    sumChart.setOption(sumChartOpt);
+    totalChart.setOption(totalChartOpt);
+    fossilEChart.setOption(fossilEChartOpt);
+    databaseTreeChart.setOption(databaseTreeChartOpt);
+    
+    document.querySelector('#SUM').style.display = 'none';
+    document.querySelector('#TOTAL').style.display = 'none';
+    document.querySelector('#TREE').style.display = 'none';
+    document.querySelector('#FOSSIL').style.display = 'none';
+    document.querySelector('#DETAIL').style.display = 'none';
+    
+    window.addEventListener('resize', sumChart.resize);
+    window.addEventListener('resize', totalChart.resize);
+    window.addEventListener('resize', fossilEChart.resize);
+    window.addEventListener('resize', databaseTreeChart.resize);
+
+
+    function closeChart(){
+        document.querySelector('#SUM').style.display = 'none';
+        document.querySelector('#TOTAL').style.display = 'none';
+        document.querySelector('#TREE').style.display = 'none';
+        document.querySelector('#FOSSIL').style.display = 'none';
+        document.querySelector('#ABOUT').style.display = 'none';
+        document.querySelector('#DETAIL').style.display = 'none';
+    };
+    var sumChartButton = document.querySelector('#sumChart');
+        sumChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#SUM').style.display = 'block';
+    });
+    var totalChartButton = document.querySelector('#totalChart');
+        totalChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#TOTAL').style.display = 'block';
+    });
+    var fossileChartButton = document.querySelector('#fossilChart');
+        fossileChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#FOSSIL').style.display = 'block';
+    });
+    var treeChartButton = document.querySelector('#treeChart');
+        treeChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#TREE').style.display = 'block';
+    });
+    var treeChartButton = document.querySelector('#about');
+        treeChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#ABOUT').style.display = 'flex';
+    });
+    var detailsChartButton = document.querySelector('#detailsChart');
+        detailsChartButton.addEventListener("click",function(){
+            closeChart();
+            document.querySelector('#DETAIL').style.display = 'block';
+    });
+});
+    </script>
+</body>
+</html>
